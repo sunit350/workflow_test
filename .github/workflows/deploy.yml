@@ -1,0 +1,33 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT || 22 }}
+          script: |
+            # Navigate to your application directory
+            cd /opt/workflow_test
+            
+            # Pull latest changes
+            git pull origin main
+            
+            # Run your test script
+            python3 test_script.py
+            
+            echo "✅ Script executed successfully on VPS!"
+            echo "Deployment completed at $(date)"
